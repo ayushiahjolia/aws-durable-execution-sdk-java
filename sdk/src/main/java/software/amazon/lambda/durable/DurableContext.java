@@ -170,11 +170,11 @@ public class DurableContext extends BaseContext {
 
     // ========== wait methods ==========
 
-    public Void wait(Duration duration) {
-        return wait(null, duration);
+    public Void wait(String waitName, Duration duration) {
+        return waitAsync(waitName, duration).get(); // Block (will throw SuspendExecutionException if needed)
     }
 
-    public Void wait(String waitName, Duration duration) {
+    public DurableFuture<Void> waitAsync(String waitName, Duration duration) {
         ParameterValidator.validateDuration(duration, "Wait duration");
         ParameterValidator.validateOperationName(waitName);
 
@@ -184,7 +184,7 @@ public class DurableContext extends BaseContext {
         var operation = new WaitOperation(operationId, waitName, duration, this);
 
         operation.execute(); // Checkpoint the wait
-        return operation.get(); // Block (will throw SuspendExecutionException if needed)
+        return operation;
     }
 
     // ========== chained invoke methods ==========
